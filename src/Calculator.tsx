@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./Calculator.module.css";
 import { evaluate } from "./lib";
 
@@ -104,7 +104,7 @@ const Calculator = () => {
         return;
       case "=":
         setInput((prev) => {
-          if (!prev) return prev
+          if (!prev) return prev;
           if ("1234567890)".includes(prev[prev.length - 1])) {
             return evaluate(
               prev + ")".repeat(getMissingBrackets(prev)),
@@ -121,12 +121,25 @@ const Calculator = () => {
     }
   };
 
+  const displayRef = useRef<null | HTMLDivElement>(null);
+
+  useEffect(() => {
+    displayRef.current.scrollLeft =
+      displayRef.current?.scrollWidth - displayRef.current?.clientWidth;
+  }, [input]);
+
   return (
     <div className={styles.calculator}>
-      <div className={styles.display}>{input || 0}</div>
+      <div ref={displayRef} className={styles.display}>
+        {(input && input + ")".repeat(getMissingBrackets(input))) || 0}
+      </div>
       <div className={styles.buttons}>
         {"()=C789+456-123*0./^".split("").map((c) => (
-          <button key={c} className={styles.button} onPointerDown={handleButtonClick}>
+          <button
+            key={c}
+            className={styles.button}
+            onPointerDown={handleButtonClick}
+          >
             {c}
           </button>
         ))}
