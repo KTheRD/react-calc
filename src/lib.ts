@@ -69,7 +69,11 @@ const shuntingYard = (tokens: string[]) => {
   return output;
 };
 
+//returns "Error" if expression contains division by zero or a fractional power of a negative number
 export const evaluate = (s: string) => {
+  //dealing with unary operators
+  // first we replace all chains like +++---+-+-34 with one operator at most
+  // after that leftover unar minuses (replaced with (0-n)) and pluses
   s = s.replace(
     /[+-]+[\d(]/g,
     (s) =>
@@ -84,11 +88,11 @@ export const evaluate = (s: string) => {
   s = s.replace(/[(*/^]-\d+(\.\d+)?|^-\d+(\.\d+)?/g, (s) =>
     s[0] === "-" ? "(0" + s + ")" : s[0] + "(0" + s.slice(1) + ")",
   );
+  s = s.replace(/[(*/^]\+\d+(\.\d+)?|^\+\d+(\.\d+)?/g, (s) => s.slice(1));
 
   const tokens = tokenize(s)!;
   const postfixExpression = shuntingYard(tokens);
   const evaluationStack: (string | number)[] = [];
-
 
   postfixExpression.forEach((token) => {
     if (typeof token === "number") {
@@ -103,8 +107,8 @@ export const evaluate = (s: string) => {
       );
 
       if (result === "Error") {
-        evaluationStack[0] = "Error"
-        return
+        evaluationStack[0] = "Error";
+        return;
       }
 
       evaluationStack.push(result!);

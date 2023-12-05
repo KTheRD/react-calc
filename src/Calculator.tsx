@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./Calculator.module.css";
 import { evaluate } from "./lib";
 
+//get how many brackets are neede to complete the expression
 const getMissingBrackets = (s: string) =>
   s
     .split("")
@@ -29,7 +30,8 @@ const Calculator = () => {
       case "9":
       case "0":
         setInput((prev) => {
-          if (prev[prev.length - 1] === ")") {
+          //if number goes after a bracket, interprete as multiplication
+          if (prev[prev.length - 1] === ")") { 
             return prev + "*" + buttonValue;
           }
           return prev + buttonValue;
@@ -41,6 +43,7 @@ const Calculator = () => {
       case "+":
       case "-":
         setInput((prev) => {
+          //if not currently entering a number, interprete as 0.
           if (prev[prev.length - 1] === ".") {
             return prev + "0" + buttonValue;
           }
@@ -49,13 +52,16 @@ const Calculator = () => {
         return;
       case ".":
         setInput((prev) => {
+          //can't enter dot after another dot 
           if (prev[prev.length - 1] === ".") return prev;
+          //interprete as 0. and as multiplication if needed
           if (!"1234567890".includes(prev[prev.length - 1])) {
             if (prev[prev.length - 1] === ")") {
               return prev + "*0" + buttonValue;
             }
             return prev + "0" + buttonValue;
           }
+          //can't enter dot if this number already has one
           for (
             let i = prev.length - 1;
             i >= 0 && "1234567890.".includes(prev[i]);
@@ -73,17 +79,21 @@ const Calculator = () => {
           if ("1234567890)".includes(prev[prev.length - 1])) {
             return prev + buttonValue;
           }
+          //autocomplete number if needed
           if (prev[prev.length - 1] === ".") {
             return prev + "0" + buttonValue;
           }
+          //can't be after another operator
           return prev;
         });
         return;
       case "(":
         setInput((prev) => {
+          //interprete as a multiplication if bracket goes directly after a number
           if ("1234567890".includes(prev[prev.length - 1])) {
             return prev + "*" + buttonValue;
           }
+          //atocomplete a number
           if (prev[prev.length - 1] === ".") {
             return prev + "0*" + buttonValue;
           }
@@ -92,6 +102,7 @@ const Calculator = () => {
         return;
       case ")":
         setInput((prev) => {
+          //no brackets to close
           if (getMissingBrackets(prev) === 0) return prev;
           if ("1234567890".includes(prev[prev.length - 1])) {
             return prev + buttonValue;
@@ -99,6 +110,7 @@ const Calculator = () => {
           if (prev[prev.length - 1] === ".") {
             return prev + "0" + buttonValue;
           }
+          //bracket can't be closed after an operator
           return prev;
         });
         return;
@@ -110,11 +122,13 @@ const Calculator = () => {
               prev + ")".repeat(getMissingBrackets(prev)),
             ).toString();
           }
+          //try to autocomplete as well
           if (prev[prev.length - 1] === ".") {
             return evaluate(
               prev + "0" + ")".repeat(getMissingBrackets(prev)),
             ).toString();
           }
+          //expression is malformed
           return prev;
         });
         return;
@@ -123,9 +137,10 @@ const Calculator = () => {
 
   const displayRef = useRef<null | HTMLDivElement>(null);
 
+  // we need to show the rightmost part of the expression
   useEffect(() => {
-    displayRef.current.scrollLeft =
-      displayRef.current?.scrollWidth - displayRef.current?.clientWidth;
+    displayRef.current!.scrollLeft =
+      displayRef.current!.scrollWidth - displayRef.current!.clientWidth;
   }, [input]);
 
   return (
