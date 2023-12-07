@@ -90,7 +90,7 @@ const Calculator = () => {
       case "(":
         setInput((prev) => {
           //interprete as a multiplication if bracket goes directly after a number
-          if ("1234567890".includes(prev[prev.length - 1])) {
+          if ("1234567890)".includes(prev[prev.length - 1])) {
             return prev + "*" + buttonValue;
           }
           //atocomplete a number
@@ -104,7 +104,7 @@ const Calculator = () => {
         setInput((prev) => {
           //no brackets to close
           if (getMissingBrackets(prev) === 0) return prev;
-          if ("1234567890".includes(prev[prev.length - 1])) {
+          if ("1234567890)".includes(prev[prev.length - 1])) {
             return prev + buttonValue;
           }
           if (prev[prev.length - 1] === ".") {
